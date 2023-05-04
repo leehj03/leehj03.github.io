@@ -37,7 +37,6 @@ FFT는 DFT의 원리를 기반으로 하여 DFT계산의 효율적 알고리즘 
 **알고리즘 구현**<br/>
 
 ```java
-```
 public class FFT {
     private static int makePowerOfTwo(int n) {// n을 2의 제곱수로 만드는 함수
         int log2 = (int) (Math.log(n) / Math.log(2));
@@ -142,7 +141,6 @@ FFT알고리즘은 위의 코드를 이용하여 알 수 있으며 DFT 와 비�
 DFT 알고리즘을 구현하여 보면
 
 ```java
-```
 public class DFT {
     static class Complex { // 복소수 객체
         public double real;
