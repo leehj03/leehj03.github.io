@@ -53,8 +53,10 @@ public class FFT {
         }
 
         public Complex times(Complex other) { // 복소수 곱셈 연산
-            double realPart = this.real * other.real - this.imag * other.imag;
-            double imagPart = this.real * other.imag + this.imag * other.real;
+            double realPart = 
+this.real * other.real - this.imag * other.imag;
+            double imagPart = 
+this.real * other.imag + this.imag * other.real;
             return new Complex(realPart, imagPart);
         }
 
@@ -91,7 +93,8 @@ public class FFT {
         Complex[] result = new Complex[n];        // DFT 계산
         for (int i = 0; i < n / 2; i++) {
             double theta = -2 * i * Math.PI / n;
-            Complex twiddle = new Complex(Math.cos(theta), Math.sin(theta));
+            Complex twiddle = new Complex(Math.cos(theta),
+ Math.sin(theta));
             result[i] = fftEven[i].plus(twiddle.times(fftOdd[i]));
             result[i + n / 2] = fftEven[i].minus(twiddle.times(fftOdd[i]));
         }
@@ -100,7 +103,8 @@ public class FFT {
 
     public static void main(String[] args) {
 
-        Complex[] input = new Complex[] { new Complex(1, 0), new Complex(2, 0), new Complex(3, 0), new Complex(4, 0) };// 입력 신호
+        Complex[] input = new Complex[] { new Complex(1, 0),
+ new Complex(2, 0), new Complex(3, 0), new Complex(4, 0) };// 입력 신호
 
         int powerOfTwo = makePowerOfTwo(input.length);
 
@@ -121,7 +125,7 @@ public class FFT {
 }
 ```
 결과값<br/>
-![결과값](https://ifh.cc/g/QLM02S.png)
+![결과값](https://ifh.cc/g/QLM02S.png)<br/>
 10.0 + 0.0i<br/>
 -0.41421356237309426 + -7.242640687119286i<br/>
 -2.0 + 2.0i<br/>
@@ -152,8 +156,10 @@ public class DFT {
         }
 
         public Complex times(Complex other) {// 복소수 곱셈 연산
-            double realPart = this.real * other.real - this.imag * other.imag;
-            double imagPart = this.real * other.imag + this.imag * other.real;
+            double realPart = 
+this.real * other.real - this.imag * other.imag;
+            double imagPart = 
+this.real * other.imag + this.imag * other.real;
             return new Complex(realPart, imagPart);
         }
 
@@ -177,7 +183,8 @@ public class DFT {
             Complex sum = new Complex(0, 0);
             for (int t = 0; t < n; t++) {
                 double theta = -2 * t * k * Math.PI / n;
-                Complex twiddle = new Complex(Math.cos(theta), Math.sin(theta));
+                Complex twiddle = new Complex(Math.cos(theta),
+ Math.sin(theta));
                 sum = sum.plus(input[t].times(twiddle));
             }
             result[k] = sum;
@@ -186,7 +193,8 @@ public class DFT {
     }
 
     public static void main(String[] args) {
-        Complex[] input = new Complex[] { new Complex(1, 0), new Complex(2, 0), new Complex(3, 0), new Complex(4, 0) };// 입력 신호
+        Complex[] input = new Complex[] { new Complex(1, 0),
+ new Complex(2, 0), new Complex(3, 0), new Complex(4, 0) };// 입력 신호
 
         Complex[] result = dft(input);// DFT 수행
 
