@@ -1,0 +1,219 @@
+---
+layout: post
+title:  "컴알 과제"
+date:   2023-05-04 00:00:00 +0900
+categories: jekyll update
+---
+
+202201625- 이현진
+-------------
+컴퓨터알고리즘
+============
+
+**F T (Fourier Transform)**<br/>
+Fourier Transform은 시간 영역(time domain)에서 정의된 함수를 주파수 영역(frquency domain)으로 변환 하는 것을 의미한다<br/>
+f(ω) = ∫f(t)exp(-iωt) dt 로 주기함수와 복소 지수함수의 선형 결합으로 
+시간 도메인의 함수르 ㄹ주파수 도메인으로 변환 한다.
+
+**DFT(Discrete Fourier Transform)**<br/>
+연속적인 시간 도메인 신호를 이산적인 주파수 성분으로 분해 하는 방법으로 
+이산적 합을 사용하여 계산 할 수 있다.<br/>
+X[k] = ∑ x[n] exp(-i 2πnk/N)<br/>
+위 공식대로 x[n]을 복소 지수 함수 exp(-i 2πnk/N)와 곱한 후, 모든 샘플에 대해 합산해 주파수 도메인에서 X[k]를 계산한다.
+(따라서, N(샘플의 개수)이 많아지면 데이터에 대해서 처리시간이 길어진다.)
+
+**FFT(Fast Fourier Transform)**<br/>
+DFT를 빠르게 계산 하는 알고리즘으로 DFT의 샘플의 개수 N에 따라 시간 복잡도(N^2)를 가지기에 대규모 데이터 계산에 비효율을 가진다. 따라서 샘플의 개수N에 대해 O(N log N)의 시간복잡도를 가짐으로 대규모 데이터 계산에 더 효율적이다.<br/>
+FFT는 DFT의 원리를 기반으로 하여 DFT계산의 효율적 알고리즘 중 하나인 Cooley-Turkey 알고리즘을 사용한다. DFT를 분할정복 방식으로 계산하여 DFT행렬의 중복 계산을 피하여 계산 속도를 높인다.
+
+아래의 이미지로 FFT적용과 iFFT적용까지 보여준다.
+![FFT 과정](https://ifh.cc/g/TszJjv.png)
+
+**응용분야**<br/>
+1. 음성 및 오디오 신호처리 : 음성 및 오디오 신호처리에서 스펙트럼 분석에 사용한다. 이를 통해 주파수 성분의 강도 및 주파수 스펙트럼 분포 등을 파악 할 수 있으며, 이를 기반으로 음성, 오디오 신호의 특징을 분석, 추출 할 수 있습니다.
+2. 영상 처리 : FFT는 영상 처리에서 필터링 및 빠른 컨볼루션에 사용된다. FFT를 사용하여 공간 도메인에서의 연산을 주파수 도메인으로 변환하고, 이를 곱셈으로 처리후 다시 iFFT를 수행하여 필터링 된 결과를 얻을 수 있습니다.
+3. 진동 분석 : FFT는 진동 분석에서 주파수 대역별 진폭, 주기, 위상 등의 정보를 분석할 수 있다.
+
+**알고리즘 구현**<br/>
+
+```
+public class FFT {
+    private static int makePowerOfTwo(int n) {// n을 2의 제곱수로 만드는 함수
+        int log2 = (int) (Math.log(n) / Math.log(2));
+        return (int) Math.pow(2, log2 + 1);
+    }
+
+    static class Complex {// 복소수 객체
+        public double real;
+        public double imag;
+
+        public Complex(double real, double imag) {
+            this.real = real;
+            this.imag = imag;
+        }
+
+        public Complex times(Complex other) { // 복소수 곱셈 연산
+            double realPart = this.real * other.real - this.imag * other.imag;
+            double imagPart = this.real * other.imag + this.imag * other.real;
+            return new Complex(realPart, imagPart);
+        }
+
+        public Complex plus(Complex other) {// 복소수 덧셈 연산
+            double realPart = this.real + other.real;
+            double imagPart = this.imag + other.imag;
+            return new Complex(realPart, imagPart);
+        }
+
+
+        public Complex minus(Complex other) {// 복소수 뺄셈 연산
+            double realPart = this.real - other.real;
+            double imagPart = this.imag - other.imag;
+            return new Complex(realPart, imagPart);
+        }
+    }
+
+    public static Complex[] fft(Complex[] input) { // Cooley-Tukey FFT 알고리즘
+        int n = input.length;
+        if (n == 1) {
+            return new Complex[] { input[0] };
+        }
+
+        Complex[] evenPart = new Complex[n / 2];// 입력 신호를 짝수와 홀수 부분으로 나눔
+        Complex[] oddPart = new Complex[n / 2];
+        for (int i = 0; i < n / 2; i++) {
+            evenPart[i] = input[2 * i];
+            oddPart[i] = input[2 * i + 1];
+        }
+
+        Complex[] fftEven = fft(evenPart);// 짝수와 홀수 부분에 대해 FFT 재귀 호출
+        Complex[] fftOdd = fft(oddPart);
+
+        Complex[] result = new Complex[n];        // DFT 계산
+        for (int i = 0; i < n / 2; i++) {
+            double theta = -2 * i * Math.PI / n;
+            Complex twiddle = new Complex(Math.cos(theta), Math.sin(theta));
+            result[i] = fftEven[i].plus(twiddle.times(fftOdd[i]));
+            result[i + n / 2] = fftEven[i].minus(twiddle.times(fftOdd[i]));
+        }
+        return result;
+    }
+
+    public static void main(String[] args) {
+
+        Complex[] input = new Complex[] { new Complex(1, 0), new Complex(2, 0), new Complex(3, 0), new Complex(4, 0) };// 입력 신호
+
+        int powerOfTwo = makePowerOfTwo(input.length);
+
+        Complex[] signal = new Complex[powerOfTwo];   // 입력 신호를 2의 제곱수 길이로 만듦
+        for (int i = 0; i < input.length; i++) {
+            signal[i] = input[i];
+        }
+        for (int i = input.length; i < powerOfTwo; i++) {
+            signal[i] = new Complex(0, 0);
+        }
+
+        Complex[] result = fft(signal);      // FFT 수행
+
+        for (Complex c : result) {// 결과 출력
+            System.out.println(c.real + " + " + c.imag + "i");
+        }
+    }
+}
+```
+결과값<br/>
+![결과값](https://ifh.cc/g/QLM02S.png)
+10.0 + 0.0i<br/>
+-0.41421356237309426 + -7.242640687119286i<br/>
+-2.0 + 2.0i<br/>
+2.4142135623730954 + -1.2426406871192848i<br/>
+-2.0 + 0.0i<br/>
+2.414213562373095 + 1.2426406871192857i<br/>
+-1.9999999999999998 + -2.0i<br/>
+-0.4142135623730958 + 7.242640687119285i<br/>
+
+위의 결과로 Complex 객체 배열로 각 결과값은 복소수형태로 표현된다.
+(이는 4개의 입력 신호의 길이로 가정하고 FFT를 수행한다.)
+
+**성능 평가**
+
+우선 FFT와 DFT를 비교할 수 있다.
+FFT알고리즘은 위의 코드를 이용하여 알 수 있으며 DFT 와 비교해 보겠다.
+DFT 알고리즘을 구현하여 보면
+
+```
+public class DFT {
+    static class Complex { // 복소수 객체
+        public double real;
+        public double imag;
+
+        public Complex(double real, double imag) {
+            this.real = real;
+            this.imag = imag;
+        }
+
+        public Complex times(Complex other) {// 복소수 곱셈 연산
+            double realPart = this.real * other.real - this.imag * other.imag;
+            double imagPart = this.real * other.imag + this.imag * other.real;
+            return new Complex(realPart, imagPart);
+        }
+
+        public Complex plus(Complex other) {// 복소수 덧셈 연산
+            double realPart = this.real + other.real;
+            double imagPart = this.imag + other.imag;
+            return new Complex(realPart, imagPart);
+        }
+
+        public Complex minus(Complex other) {// 복소수 뺄셈 연산
+            double realPart = this.real - other.real;
+            double imagPart = this.imag - other.imag;
+            return new Complex(realPart, imagPart);
+        }
+    }
+
+    public static Complex[] dft(Complex[] input) {// 입력 신호에 대한 DFT 수행
+        int n = input.length;
+        Complex[] result = new Complex[n];
+        for (int k = 0; k < n; k++) {
+            Complex sum = new Complex(0, 0);
+            for (int t = 0; t < n; t++) {
+                double theta = -2 * t * k * Math.PI / n;
+                Complex twiddle = new Complex(Math.cos(theta), Math.sin(theta));
+                sum = sum.plus(input[t].times(twiddle));
+            }
+            result[k] = sum;
+        }
+        return result;
+    }
+
+    public static void main(String[] args) {
+        Complex[] input = new Complex[] { new Complex(1, 0), new Complex(2, 0), new Complex(3, 0), new Complex(4, 0) };// 입력 신호
+
+        Complex[] result = dft(input);// DFT 수행
+
+        for (Complex c : result) {       // 결과 출력
+            System.out.println(c.real + " + " + c.imag + "i");
+        }
+    }
+}
+
+```
+결과값은
+
+![결과값1](https://ifh.cc/g/zTJ8rk.png)<br/>
+
+위의 값들은 입력 신호의 길이에 따라 계산 처리시간이 차이가 날 것이다.<br/>
+그래프로 보도록 하자
+![그래프](https://ifh.cc/g/9KkXoz.png)
+DFT에서의 계산량은 N^2으로 입력신호가 길어질수록 FFT의 NlogN과 차이가 커지는 것을 볼 수 있다.
+
+**응용**<br/>
+응용을 위해 음성신호를 입력 받아 FFT를 수행하고 주파수 도메인에서 분석하여 통계를 내는 코드를 만들어 보자
+```
+
+```
+결과는
+```
+
+```
+
+
