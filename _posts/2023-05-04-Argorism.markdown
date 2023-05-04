@@ -5,11 +5,11 @@ date:   2023-05-04 00:00:00 +0900
 categories: jekyll update
 ---
 
-202201625- 이현진
+##202201625- 이현진
 -------------
-===========
-컴퓨터알고리즘
-============
+
+#컴퓨터알고리즘
+
 
 **F T (Fourier Transform)**<br/>
 Fourier Transform은 시간 영역(time domain)에서 정의된 함수를 주파수 영역(frquency domain)으로 변환 하는 것을 의미한다<br/>
